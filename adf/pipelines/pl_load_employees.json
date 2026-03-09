@@ -1,0 +1,21 @@
+{
+  "name": "pl_load_employees",
+  "properties": {
+    "description": "Data Flow: employees.json + departments.json → INNER JOIN → SELECT → SQL TRUNCATE+LOAD",
+    "activities": [
+      {
+        "name": "DataFlow_EmployeesJoin",
+        "type": "ExecuteDataFlow",
+        "dependsOn": [],
+        "policy": { "timeout": "0.01:00:00", "retry": 0 },
+        "userProperties": [],
+        "typeProperties": {
+          "dataflow": {
+            "referenceName": "df_employees_join",
+            "type": "DataFlowReference"
+          }
+        }
+      }
+    ]
+  }
+}

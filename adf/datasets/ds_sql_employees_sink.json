@@ -1,0 +1,21 @@
+{
+  "name": "ds_sql_employees_sink",
+  "properties": {
+    "linkedServiceName": {
+      "referenceName": "ls_azure_sql_database",
+      "type": "LinkedServiceReference"
+    },
+    "parameters": {
+      "tableName": { "type": "String", "defaultValue": "dbo.employees_with_department" }
+    },
+    "annotations": [],
+    "type": "AzureSqlTable",
+    "typeProperties": {
+      "table": {
+        "value": "@dataset().tableName",
+        "type": "Expression"
+      }
+    },
+    "schema": []
+  }
+}

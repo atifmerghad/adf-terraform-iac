@@ -1,0 +1,17 @@
+### Terraform local files
+**/.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+
+### Local environment overrides (optional)
+# *.tfvars
+# *.tfvars.json
+
+### OS / editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+

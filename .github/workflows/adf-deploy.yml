@@ -1,0 +1,77 @@
+name: ADF Deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "adf/**"
+      - ".github/workflows/adf-deploy.yml"
+  workflow_dispatch:
+
+env:
+  WORKING_DIR: adf
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: dev
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Azure Login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy Datasets
+        run: |
+          for f in adf/datasets/*.json; do
+            name=$(jq -r '.name' "$f")
+            echo "Deploying dataset: $name"
+            az datafactory dataset create \
+              --resource-group ${{ secrets.RESOURCE_GROUP_NAME }} \
+              --factory-name ${{ secrets.DATA_FACTORY_NAME }} \
+              --name "$name" \
+              --properties "@$f" 2>/dev/null || \
+            az datafactory dataset update \
+              --resource-group ${{ secrets.RESOURCE_GROUP_NAME }} \
+              --factory-name ${{ secrets.DATA_FACTORY_NAME }} \
+              --name "$name" \
+              --properties "@$f"
+          done
+        env:
+          ARM_USE_OIDC: true
+
+      - name: Deploy Data Flow
+        run: |
+          az datafactory data-flow create \
+            --resource-group ${{ secrets.RESOURCE_GROUP_NAME }} \
+            --factory-name ${{ secrets.DATA_FACTORY_NAME }} \
+            --name "df_employees_join" \
+            --properties "@adf/dataflows/df_employees_join.json" 2>/dev/null || \
+          az datafactory data-flow update \
+            --resource-group ${{ secrets.RESOURCE_GROUP_NAME }} \
+            --factory-name ${{ secrets.DATA_FACTORY_NAME }} \
+            --name "df_employees_join" \
+            --properties "@adf/dataflows/df_employees_join.json"
+
+      - name: Deploy Pipeline
+        run: |
+          az datafactory pipeline create \
+            --resource-group ${{ secrets.RESOURCE_GROUP_NAME }} \
+            --factory-name ${{ secrets.DATA_FACTORY_NAME }} \
+            --name "pl_load_employees" \
+            --pipeline "@adf/pipelines/pl_load_employees.json" 2>/dev/null || \
+          az datafactory pipeline create \
+            --resource-group ${{ secrets.RESOURCE_GROUP_NAME }} \
+            --factory-name ${{ secrets.DATA_FACTORY_NAME }} \
+            --name "pl_load_employees" \
+            --pipeline "@adf/pipelines/pl_load_employees.json"

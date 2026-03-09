@@ -1,0 +1,10 @@
+{
+  "name": "df_employees_join",
+  "properties": {
+    "description": "INNER JOIN employees.json + departments.json on department_id → SELECT → SQL TRUNCATE+LOAD",
+    "type": "MappingDataFlow",
+    "typeProperties": {
+      "script": "source(output(\n\temployee_id as integer,\n\temployee_name as string,\n\tdepartment_id as integer\n),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'single',\n\tfilePattern: 'employees.json',\n\tdocumentForm: 'documentPerLine') ~> EmployeesSource\nsource(output(\n\tdepartment_id as integer,\n\tdepartment_name as string\n),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'single',\n\tfilePattern: 'departments.json',\n\tdocumentForm: 'documentPerLine') ~> DepartmentsSource\nEmployeesSource, DepartmentsSource join(EmployeesSource@department_id == DepartmentsSource@department_id,\n\tjoinType:'inner',\n\tbroadcast: 'auto')~> InnerJoin\nInnerJoin select(mapColumn(\n\t\temployee_id,\n\t\temployee_name,\n\t\tdepartment_id,\n\t\tdepartment_name = DepartmentsSource@department_name\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SelectColumns\nSelectColumns sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\trecreate:true,\n\tformat: 'table',\n\tstore: 'sql',\n\tstagedCopy: false,\n\tmapColumn(\n\t\temployee_id,\n\t\temployee_name,\n\t\tdepartment_id,\n\t\tdepartment_name\n\t)) ~> SqlSink"
+    }
+  }
+}
