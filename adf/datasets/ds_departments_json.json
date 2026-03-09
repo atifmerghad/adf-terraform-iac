@@ -10,11 +10,21 @@
     "typeProperties": {
       "location": {
         "type": "AzureBlobStorageLocation",
-        "container": "adf-container",
+        "fileName": "departments.json",
         "folderPath": "raw",
-        "fileName": "departments.json"
+        "container": "adf-container"
       }
     },
-    "schema": []
+    "schema": {
+      "type": "object",
+      "properties": {
+        "department_id": {
+          "type": "integer"
+        },
+        "department_name": {
+          "type": "string"
+        }
+      }
+    }
   }
 }

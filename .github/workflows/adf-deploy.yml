@@ -57,6 +57,7 @@ jobs:
             --resource-group ${{ secrets.RESOURCE_GROUP_NAME }} \
             --factory-name ${{ secrets.DATA_FACTORY_NAME }} \
             --name "df_employees_join" \
+            --flow-type "MappingDataFlow" \
             --properties @/tmp/df_props.json; then
             echo "Data flow created"
           else
@@ -65,6 +66,7 @@ jobs:
               --resource-group ${{ secrets.RESOURCE_GROUP_NAME }} \
               --factory-name ${{ secrets.DATA_FACTORY_NAME }} \
               --name "df_employees_join" \
+              --flow-type "MappingDataFlow" \
               --properties @/tmp/df_props.json
           fi
 
