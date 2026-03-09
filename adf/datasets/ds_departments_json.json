@@ -5,23 +5,13 @@
       "referenceName": "ls_azure_blob_storage",
       "type": "LinkedServiceReference"
     },
-    "parameters": {
-      "container": { "type": "String", "defaultValue": "adf-container" },
-      "folderPath": { "type": "String", "defaultValue": "raw" }
-    },
     "annotations": [],
     "type": "Json",
     "typeProperties": {
       "location": {
         "type": "AzureBlobStorageLocation",
-        "container": {
-          "value": "@dataset().container",
-          "type": "Expression"
-        },
-        "folderPath": {
-          "value": "@dataset().folderPath",
-          "type": "Expression"
-        },
+        "container": "adf-container",
+        "folderPath": "raw",
         "fileName": "departments.json"
       }
     },

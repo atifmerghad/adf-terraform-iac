@@ -52,16 +52,21 @@ jobs:
 
       - name: Deploy Data Flow
         run: |
-          az datafactory data-flow create \
+          jq '.properties' adf/dataflows/df_employees_join.json > /tmp/df_props.json
+          if az datafactory data-flow create \
             --resource-group ${{ secrets.RESOURCE_GROUP_NAME }} \
             --factory-name ${{ secrets.DATA_FACTORY_NAME }} \
             --name "df_employees_join" \
-            --properties "@adf/dataflows/df_employees_join.json" 2>/dev/null || \
-          az datafactory data-flow update \
-            --resource-group ${{ secrets.RESOURCE_GROUP_NAME }} \
-            --factory-name ${{ secrets.DATA_FACTORY_NAME }} \
-            --name "df_employees_join" \
-            --properties "@adf/dataflows/df_employees_join.json"
+            --properties @/tmp/df_props.json; then
+            echo "Data flow created"
+          else
+            echo "Create failed, trying update..."
+            az datafactory data-flow update \
+              --resource-group ${{ secrets.RESOURCE_GROUP_NAME }} \
+              --factory-name ${{ secrets.DATA_FACTORY_NAME }} \
+              --name "df_employees_join" \
+              --properties @/tmp/df_props.json
+          fi
 
       - name: Deploy Pipeline
         run: |
